@@ -6,10 +6,11 @@ channels:
 dependencies:
   - _libgcc_mutex=0.1=conda_forge
   - _openmp_mutex=4.5=1_gnu
+  - blas=1.0=openblas
   - bzip2=1.0.8=h7f98852_4
-  - ca-certificates=2020.10.14=0
+  - ca-certificates=2020.12.8=h06a4308_0
   - cairo=1.16.0=h18b612c_1001
-  - certifi=2020.6.20=py37_0
+  - certifi=2020.12.5=py37h06a4308_0
   - ffmpeg=4.0=hcdf2ecd_0
   - fontconfig=2.13.1=he4413a7_1000
   - freeglut=3.2.1=h58526e2_0
@@ -49,10 +50,11 @@ dependencies:
   - libxml2=2.9.10=hb55368b_3
   - lz4-c=1.9.2=he1b5a44_3
   - ncurses=6.2=h58526e2_4
-  - numpy=1.19.4=py37haa41c4c_2
+  - numpy=1.19.2=py37h6163131_0
+  - numpy-base=1.19.2=py37h75fe3a5_0
   - olefile=0.46=py37_0
   - opencv=3.4.2=py37h6fd60c2_1
-  - openssl=1.1.1h=h7b6447c_0
+  - openssl=1.1.1i=h27cfd23_0
   - pcre=8.44=he1b5a44_0
   - pillow=8.0.0=py37h9a89aac_0
   - pip=20.3.3=pyhd8ed1ab_0
