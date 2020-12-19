@@ -13,7 +13,7 @@ config_file = ConfigParser()
 config_file.read('options-generator.conf')
 
 number_of_frames = int(config_file.get("DEFAULT", "number_of_frames"))
-height = int(config_file.get("DEFAULT", "height"))
+height_frame = int(config_file.get("DEFAULT", "height_frame"))
 x_frame = int(config_file.get("DEFAULT", "x_frame"))
 number_of_rows = int(config_file.get("DEFAULT", "number_of_rows"))
 number_of_columns = int(config_file.get("DEFAULT", "number_of_columns"))
@@ -33,23 +33,14 @@ green = [0, 255, 0]
 purple = [153, 0, 153]
 orange = [255, 128, 0]
 
-#final_pic = Image.new('RGB', (number_of_frames * x_frame, height), tuple(yellow))
-# print(color2rgb["red"])
-# print( np.array(c1p1))
-# print(color2rgb(np.array(c1p1)))
-# color=np.array([ [ color2rgb(np.array(c1p1)),\
-#        np.array(c2p1)],\
-#        [ np.array(c1p2),\
-#        np.array(c2p2)]])
-# color=np.array([ [ np.array(c1p1),\
-#        np.array(c2p1)],\
-#        [ np.array(c1p2),\
-#        np.array(c2p2)]])
-# print("shape",color.shape)
-color = np.array([[[red, purple, blue, black],
-                   [red, green, black, blue]],
-                  [[yellow, green, purple, orange],
-                   [red, white, blue, black]]])
+color = np.array([[[red, purple],
+                   [blue, black],
+                   [red, green],
+                   [black, blue]],
+                  [[yellow, green],
+                   [purple, orange],
+                   [red, green],
+                   [blue, black]]])
 #color = np.array([[[red, black, red, white],
 #                   [red, black, red, orange]],
 #                  [[purple, purple, purple, green],
@@ -57,16 +48,17 @@ color = np.array([[[red, purple, blue, black],
 
 
 for currentframe in range(0, number_of_frames):
-    final_pic = Image.new('RGB', (number_of_frames * x_frame, height), tuple(blue))
-    for horiz in range(0, number_of_columns):
-        for vertic in range(0, number_of_rows):
-            x1 = horiz * x_frame
-            y1 = vertic * int((height / number_of_rows))
-            x2 = (horiz + 1) * x_frame
-            y2 = (vertic + 1) * int((height / number_of_rows))
+    final_pic = Image.new('RGB', (x_frame, height_frame), tuple(white))
+    for row in range(0, number_of_rows):
+        for column in range(0, number_of_columns):
+            y1 = row * int((height_frame / number_of_rows))
+            x1 = column * int(x_frame/number_of_columns)
+#            y2 = (row + 1) * int((x_frame / number_of_columns))
+#            x2 = (column + 1) * int(height_frame/number_of_rows)
 #            print(y2-y1+1)
 #            final_pic.paste(tuple(color[currentframe, horiz, vertic, :]), (x1, y1, x2, y2))
-            final_pic.paste(tuple(color[currentframe, horiz, vertic, :]), (x1, y1, x2, y2))
+            tmpImage = Image.new('RGB', (int(x_frame / number_of_columns),int(height_frame/number_of_rows)),  tuple(color[currentframe, row, column, :]))
+            final_pic.paste(tmpImage, (x1, y1))
 
     final_pic.show()
     print(final_pic.mode)
