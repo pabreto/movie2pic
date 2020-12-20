@@ -16,8 +16,8 @@ config_file.read("options-m2p.conf")
 movie_name = config_file.get("DEFAULT", "movie_name")
 outdir = config_file.get("DEFAULT", "outdir")
 pic_name = config_file.get("DEFAULT", "picname")
-separations = int(config_file.get('DEFAULT', "separations"))
-height = int(config_file.get("DEFAULT", "height"))
+number_of_rows = int(config_file.get('DEFAULT', "number_of_rows"))
+height_frame = int(config_file.get("DEFAULT", "height_frame"))
 x_frame = int(config_file.get("DEFAULT", "x_frame"))
 
 # Read the video from specified path
@@ -43,49 +43,61 @@ if not os.path.exists(outdir):
 
 # c = Counter(map(tuple, A)).most_common()[0][0]
 # print("c",c)
-final_pic = Image.new('RGB', (number_of_frames * x_frame, height), "black")
+final_pic = Image.new('RGB', (number_of_frames * x_frame,height_frame), "black")
 while currentframe < number_of_frames:
+    print("-------")
     ret, frame = cam.read()
     if ret:
         # print(frame.shape)
-        x_orig = frame[:, 0, 0].size
-        h_orig = frame[0, :, 0].size
-        print('x_orig', x_orig)
-        print('h_orig', h_orig)
-        #        print(frame[0,0,0])
-        #        print(webcolors.rgb_to_name((0, 0, 0), spec='css3'))
-        #        print(webcolors.rgb_to_name(list(frame[0,0,0]),spec='css3'))
-        #        for i in range(0, 3):
-        #            print("i", frame[0, :, i])
         cv2.imshow('frame' + str(currentframe), frame)
         cv2.waitKey()
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        x_orig = frame[0, :, 0].size
+        height_orig = frame[:, 0, 0].size
+        print('x_orig', x_orig)
+        print('height_orig', height_orig)
+        #        print(frame[0,0,0])
+#        print(webcolors.rgb_to_name((0, 0, 0)))
         #        print("newframe",newframe)
         #        print("frame",frame)
-        print('separations', separations)
-        for h in range(0, separations):
-            new_height = int(height / separations)
-            slice_hsize = int(h_orig / separations)
-            slice_size = int(x_orig * slice_hsize)
-            print('height', height)
+        print('number_of_rows', number_of_rows)
+        for h in range(0, number_of_rows):
+            height_slice_orig = int(height_orig / number_of_rows)
+            size_slice = int(x_orig * height_slice_orig)
+            print('height_slice_orig', height_slice_orig)
+            print('size_slice', size_slice)
+            subframe = frame[int(h * height_slice_orig):int((h + 1) * height_slice_orig),:, :]
+            print('shape.frame', frame.shape)
+            print('shape.subframe', subframe.shape)
+#            print(size_slice*3)
+#            subframe = frame[int(h * height_slice_orig):int((h + 1) * height_slice_orig), :, :]
+  #          print('shape.subframe',subframe.shape)
+ #           cv2.imshow('subframe' + str(currentframe) + "_h" +str(h), subframe)
+            subframe_reshaped = subframe.reshape(size_slice, 3)
+ #           mostfrequent_color = Counter(subframe).most_common()[0][0]
+            print('Counter',Counter(map(tuple, subframe_reshaped)).most_common()[0])
+            print('Counter',len(Counter(map(tuple, subframe_reshaped)).most_common()))
+            mostfrequent_color = Counter(map(tuple, subframe_reshaped)).most_common()[0][0]
+            #mostfrequent_color = Counter(map(tuple, subframe_reshaped[h:int((h + 1) * height_slice_orig)])).most_common()[0][0]
+            print('mostfrequent_color',tuple(mostfrequent_color))
+            new_height = int(height_frame / number_of_rows)
             print('new_height', new_height)
-            print('slice_hsize', slice_hsize)
-            print('slice_size', slice_size)
-            cv2.imshow('subframe' + str(currentframe), frame[:, int(h * slice_hsize):int((h + 1) * slice_hsize), :])
-            subframe = frame[:, int(h * slice_hsize):int((h + 1) * slice_hsize), :].reshape(slice_size, 3)
-            mostfrequent_color = Counter(map(tuple, subframe[h:int((h + 1) * slice_hsize)])).most_common()[0][0]
-            print('subframe', subframe)
-            print('mostfrequent_color', mostfrequent_color)
+            tmpImage = Image.new('RGB', (x_frame,new_height), mostfrequent_color)
+ #           tmpImage.show()
+#            cv2.imshow('mostfrequent_color', tmpImage)
+#            cv2.waitKey()
+#            print('subframe', subframe)
+#            print('mostfrequent_color', tuple(mostfrequent_color))
             x1 = currentframe * x_frame
             y1 = h * new_height
-            x2 = (currentframe + 1) * x_frame
-            y2 = (h + 1) * new_height
-            final_pic.paste(mostfrequent_color,
-                            (x1, y1, x2, y2))
-
-            # tmppic = Image.new('RGB', (x_frame, new_height), mostfrequent_color)
-            cv2.waitKey()
+#            x2 = (currentframe + 1) * x_frame
+#            y2 = (h + 1) * new_height
+            final_pic.paste(tmpImage, (x1, y1))
+#            cv2.waitKey()
         currentframe += 1
-        final_pic.show()
+#    cv2.imshow("final",final_pic)    #
+    final_pic.show()
+    cv2.waitKey()
 final_pic.save(pic_name + ".jpg")
 # writing the extracted images
 # increasing counter so that it will 

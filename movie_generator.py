@@ -5,6 +5,7 @@ from configparser import ConfigParser
 
 import cv2
 import numpy as np
+import os
 import webcolors
 from PIL import Image
 
@@ -41,14 +42,18 @@ color = np.array([[[red, purple],
                    [purple, orange],
                    [red, green],
                    [blue, black]]])
-#color = np.array([[[red, black, red, white],
-#                   [red, black, red, orange]],
-#                  [[purple, purple, purple, green],
-#                   [green, green, green, blue]]])
+color = np.array([[[red, red],
+                   [red, black],
+                   [red, red],
+                   [black, red]],
+                  [[purple, purple],
+                   [purple, green],
+                   [green, green],
+                   [green, blue]]])
 
 
 for currentframe in range(0, number_of_frames):
-    final_pic = Image.new('RGB', (x_frame, height_frame), tuple(white))
+    final_pic = Image.new('RGB', (x_frame,height_frame), tuple(white))
     for row in range(0, number_of_rows):
         for column in range(0, number_of_columns):
             y1 = row * int((height_frame / number_of_rows))
@@ -66,8 +71,11 @@ for currentframe in range(0, number_of_frames):
     final_pic.save("image_h" + str(currentframe) + ".jpg")
 
 img_array = []
-for filename in glob.glob('*.jpg'):
+for filename in sorted(glob.glob('image_h*.jpg')):
+#for filename in sorted(glob.glob('*.jpg')):
+#for filename in os.listdir('*.jpg'):
     img = cv2.imread(filename)
+    print(filename)
     print(img.shape)
     height, width, layers = img.shape
     size = (width, height)
