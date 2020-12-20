@@ -49,7 +49,7 @@ color = np.array([[[red, red],
                   [[purple, purple],
                    [purple, green],
                    [green, green],
-                   [green, blue]]])
+                   [blue, green]]])
 
 
 for currentframe in range(0, number_of_frames):

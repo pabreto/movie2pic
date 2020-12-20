@@ -4,9 +4,25 @@ import cv2
 from PIL import Image
 from configparser import ConfigParser
 import os
+import sys
 from collections import Counter
+from pathlib import Path
 import webcolors
 import numpy as np
+
+def progressbar(it, prefix="", size=60, file=sys.stdout):
+    count = len(it)
+    def show(j):
+        x = int(size*j/count)
+        file.write("%s[%s%s] %i/%i\r" % (prefix, "#"*x, "."*(size-x), j, count))
+        file.flush()
+    show(0)
+    for i, item in enumerate(it):
+        yield item
+        show(i+1)
+    file.write("\n")
+    file.flush()
+
 
 config_file: ConfigParser = ConfigParser()
 
@@ -16,6 +32,13 @@ config_file.read("options-m2p.conf")
 movie_name = config_file.get("DEFAULT", "movie_name")
 outdir = config_file.get("DEFAULT", "outdir")
 pic_name = config_file.get("DEFAULT", "picname")
+#print("picname",pic_name)
+if pic_name == "":
+    pic_name = Path(movie_name).stem
+    print("Picname not defined, will use movie name (",pic_name, ").")
+else:
+    print("picname defined", pic_name)
+
 number_of_rows = int(config_file.get('DEFAULT', "number_of_rows"))
 height_frame = int(config_file.get("DEFAULT", "height_frame"))
 x_frame = int(config_file.get("DEFAULT", "x_frame"))
@@ -36,52 +59,46 @@ else:
 if not os.path.exists(outdir):
     os.makedirs(outdir)
 
-# A = np.array(
-#  [[ 2.,  1.],
-#   [ 1.,  1.]]
-# )
-
-# c = Counter(map(tuple, A)).most_common()[0][0]
-# print("c",c)
 final_pic = Image.new('RGB', (number_of_frames * x_frame,height_frame), "black")
-while currentframe < number_of_frames:
-    print("-------")
+for currentframe in progressbar(range(number_of_frames), "Creating image: ", 40):
+
+#    print("-------")
     ret, frame = cam.read()
     if ret:
         # print(frame.shape)
-        cv2.imshow('frame' + str(currentframe), frame)
-        cv2.waitKey()
+#        cv2.imshow('frame' + str(currentframe), frame)
+#        cv2.waitKey()
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         x_orig = frame[0, :, 0].size
         height_orig = frame[:, 0, 0].size
-        print('x_orig', x_orig)
-        print('height_orig', height_orig)
+#        print('x_orig', x_orig)
+#        print('height_orig', height_orig)
         #        print(frame[0,0,0])
 #        print(webcolors.rgb_to_name((0, 0, 0)))
         #        print("newframe",newframe)
         #        print("frame",frame)
-        print('number_of_rows', number_of_rows)
+#        print('number_of_rows', number_of_rows)
         for h in range(0, number_of_rows):
             height_slice_orig = int(height_orig / number_of_rows)
             size_slice = int(x_orig * height_slice_orig)
-            print('height_slice_orig', height_slice_orig)
-            print('size_slice', size_slice)
+#            print('height_slice_orig', height_slice_orig)
+#            print('size_slice', size_slice)
             subframe = frame[int(h * height_slice_orig):int((h + 1) * height_slice_orig),:, :]
-            print('shape.frame', frame.shape)
-            print('shape.subframe', subframe.shape)
+#            print('shape.frame', frame.shape)
+#            print('shape.subframe', subframe.shape)
 #            print(size_slice*3)
 #            subframe = frame[int(h * height_slice_orig):int((h + 1) * height_slice_orig), :, :]
   #          print('shape.subframe',subframe.shape)
  #           cv2.imshow('subframe' + str(currentframe) + "_h" +str(h), subframe)
             subframe_reshaped = subframe.reshape(size_slice, 3)
  #           mostfrequent_color = Counter(subframe).most_common()[0][0]
-            print('Counter',Counter(map(tuple, subframe_reshaped)).most_common()[0])
-            print('Counter',len(Counter(map(tuple, subframe_reshaped)).most_common()))
+#            print('Counter',Counter(map(tuple, subframe_reshaped)).most_common()[0])
+#           print('Counter',len(Counter(map(tuple, subframe_reshaped)).most_common()))
             mostfrequent_color = Counter(map(tuple, subframe_reshaped)).most_common()[0][0]
             #mostfrequent_color = Counter(map(tuple, subframe_reshaped[h:int((h + 1) * height_slice_orig)])).most_common()[0][0]
-            print('mostfrequent_color',tuple(mostfrequent_color))
+#            print('mostfrequent_color',tuple(mostfrequent_color))
             new_height = int(height_frame / number_of_rows)
-            print('new_height', new_height)
+#            print('new_height', new_height)
             tmpImage = Image.new('RGB', (x_frame,new_height), mostfrequent_color)
  #           tmpImage.show()
 #            cv2.imshow('mostfrequent_color', tmpImage)
@@ -96,9 +113,12 @@ while currentframe < number_of_frames:
 #            cv2.waitKey()
         currentframe += 1
 #    cv2.imshow("final",final_pic)    #
-    final_pic.show()
-    cv2.waitKey()
+#    final_pic.show()
+#    cv2.waitKey()
+print("Final pic created: "+pic_name+".jpg")
+final_pic.show()
 final_pic.save(pic_name + ".jpg")
+
 # writing the extracted images
 # increasing counter so that it will 
 # show how many frames are created 
