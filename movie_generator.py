@@ -9,6 +9,7 @@ import os
 import webcolors
 from PIL import Image
 
+
 config_file = ConfigParser()
 # config_file.read(str(sys.argv[1]))
 config_file.read('options-generator.conf')
