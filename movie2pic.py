@@ -35,13 +35,14 @@ config_file.read("options-m2p.conf")
 movie_name = config_file.get("DEFAULT", "movie_name")
 outdir = config_file.get("DEFAULT", "outdir")
 pic_name = config_file.get("DEFAULT", "picname")
+interpolation_method = config_file.get("DEFAULT", "interpolation_method")
 number_of_rows = int(config_file.get('DEFAULT', "number_of_rows"))
 height_frame = int(config_file.get("DEFAULT", "height_frame"))
 x_frame = int(config_file.get("DEFAULT", "x_frame"))
 
 # print("picname",pic_name)
 if pic_name == "":
-    pic_name = Path(movie_name).stem
+    pic_name = str(Path(movie_name).stem + "-" + interpolation_method + "-" + str(number_of_rows))
     print("Picname not defined, will use movie name (", pic_name, ").")
 else:
     print("picname defined", pic_name)
@@ -127,7 +128,10 @@ for currentframe in progressbar(range(number_of_frames), "Creating image: ", 40)
         #        print('number_of_rows', number_of_rows)
         for h in range(0, number_of_rows):
             subframe = frame[int(h * height_slice_orig):int((h + 1) * height_slice_orig), :, :].reshape(size_slice, 3)
-            mostfrequent_color = Counter(map(tuple, subframe)).most_common()[0][0]
+            if interpolation_method == "max":
+                mostfrequent_color = Counter(map(tuple, subframe)).most_common()[0][0]
+            elif interpolation_method == "average":
+                mostfrequent_color = tuple(np.mean(subframe, 0, int))
             tmpImage = Image.new('RGB', (x_frame, new_height), mostfrequent_color)
             y1 = h * new_height
             final_pic.paste(tmpImage, (x1, y1))
