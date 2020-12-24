@@ -16,7 +16,9 @@ def progressbar(it, prefix="", size=60, file=sys.stdout):
 
     def show(j):
         x = int(size * j / count)
-        file.write("%s[%s%s] %i/%i\r" % (prefix, "#" * x, "." * (size - x), j, count))
+        percent = int(int(j/count)*100)
+#        file.write("%s[%s%s] %i/%i (%f '%')\r" % (prefix, "o" * x, "." * (size - x), j, count, percent))
+        file.write("%s[%s%s] %i/%i (%f)\r" % (prefix, "o" * x, "." * (size - x), j, count, percent))
         file.flush()
 
     show(0)
@@ -43,7 +45,8 @@ x_final_pic = config_file.get("DEFAULT", "x_final_pic")
 # Flag to remove all black frames at beginning of movie
 all_black = True
 if pic_name == "":
-    pic_name = str(Path(movie_name).stem + "-" + interpolation_method + "-" + str(number_of_rows))
+    pic_name = str(Path(movie_name).stem + "-" + interpolation_method + "-" + str(number_of_rows) + "rows-" +
+                   x_frame + "xframe")
     print("Picname not defined, will use movie name (", pic_name, ").")
 else:
     print("Pic saved to", pic_name)
@@ -90,6 +93,7 @@ else:
 if not os.path.exists(outdir):
     os.makedirs(outdir)
 
+#for currentframe in progressbar(range(400), "Creating image: ", 40):
 for currentframe in progressbar(range(number_of_frames), "Creating image: ", 40):
     ret, frame = cam.read()
     if ret:
@@ -102,8 +106,6 @@ for currentframe in progressbar(range(number_of_frames), "Creating image: ", 40)
                 #, cv2.countNonZero(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)),
                 #  100*cv2.countNonZero(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY))/frame[:, :, 0].size,"%", frame[:, :, 0].shape)
 
-          #  cv2.imshow('frame' + str(currentframe), frame)
-         #   cv2.waitKey()
             if all_black:
                 print("First colored image ", str(currentframe))
                 if x_frame == "":
@@ -140,8 +142,8 @@ for currentframe in progressbar(range(number_of_frames), "Creating image: ", 40)
                 print('x_final_pic', x_final_pic)
                 final_pic = Image.new('RGB', (x_final_pic, height_frame), "black")
                 #                print("Img created")
-                #                cv2.imshow('frame' + str(currentframe), frame)
-                #                cv2.waitKey()
+#                cv2.imshow('frame-' + str(currentframe), frame)
+#                cv2.waitKey()
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 #            print("preframe",frame.shape)
                 #                if not all_black:
@@ -184,17 +186,19 @@ for currentframe in progressbar(range(number_of_frames), "Creating image: ", 40)
                       right_border)
                 all_black = False
             if currentframe % increment == 0:
+#                cv2.imshow('frame-' + str(currentframe), frame)
+#                cv2.waitKey()
                 frame = frame[top_border:bottom_border, left_border:right_border, :]
                 height_orig, x_orig = frame[:, :, 0].shape
                 height_slice_orig = int(height_orig / number_of_rows)
                 size_slice = int(x_orig * height_slice_orig)
                 new_height = int(height_frame / number_of_rows)
-                x1 = currentframe * x_frame
-                #            print("x1", x1)
-                #            print("current_frame",currentframe)
-                #            print("x_frame",x_frame)
-                #            print("new_height",new_height)
-                #            print("height_slice_orig",height_slice_orig)
+                x1 = int(currentframe/increment) * x_frame
+#                print("x1", x1)
+#                print("current_frame", currentframe)
+#                print("x_frame", x_frame)
+#                print("new_height", new_height)
+#                print("height_slice_orig", height_slice_orig)
                 for h in range(0, number_of_rows):
                     #                print("shape", frame[int(h * height_slice_orig):int((h + 1) * height_slice_orig), :, :].shape)
                     subframe = frame[int(h * height_slice_orig):int((h + 1) * height_slice_orig), :, :].reshape(
