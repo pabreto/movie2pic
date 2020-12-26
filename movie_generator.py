@@ -52,6 +52,14 @@ color = np.array([[[red, red],
                    [green, green],
                    [blue, green]]])
 
+color = np.array([[[red, red],
+                   [black, black],
+                   [red, red],
+                   [blue, blue]],
+                  [[purple, purple],
+                   [purple, green],
+                   [green, green],
+                   [blue, green]]])
 
 for currentframe in range(0, number_of_frames):
     final_pic = Image.new('RGB', (x_frame,height_frame), tuple(white))
@@ -72,19 +80,22 @@ for currentframe in range(0, number_of_frames):
     final_pic.save("image_h" + str(currentframe) + ".jpg")
 
 img_array = []
+#f='shrek'
+##print(glob.glob('pics/shrek*.png'))
+#for filename in sorted(glob.glob('pics/shrek*.png')):
 for filename in sorted(glob.glob('image_h*.jpg')):
-#for filename in sorted(glob.glob('*.jpg')):
 #for filename in os.listdir('*.jpg'):
     img = cv2.imread(filename)
-    print(filename)
-    print(img.shape)
+    print('filename',filename)
+    print('shape',img.shape)
     height, width, layers = img.shape
     size = (width, height)
     img_array.append(img)
 # fourcc = cv2.VideoWriter_fourcc(*'MP4V')
 fourcc = 0x7634706d
 print(video_name)
-out = cv2.VideoWriter(video_name, fourcc, 1, size)
+#out = cv2.VideoWriter(f+".mp4", fourcc, 1, size)
+out = cv2.VideoWriter(video_name+".mp4", fourcc, 1, size)
 
 for i in range(len(img_array)):
     out.write(img_array[i])
